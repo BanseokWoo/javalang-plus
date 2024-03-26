@@ -271,7 +271,7 @@ def unparse(node, indent=0):
         goto_str = " %s" % node.goto if node.goto is not None else ""
         return indent_str + "continue%s;" % goto_str
     elif isinstance(node, tree.ReturnStatement):
-        return indent_str + "return %s;" % unparse(node.expression) if node.expression is not None else "return;"
+        return indent_str + ("return %s;" % unparse(node.expression) if node.expression is not None else "return;")
     elif isinstance(node, tree.ThrowStatement):
         return indent_str + "throw %s;" % unparse(node.expression)
     elif isinstance(node, tree.SynchronizedStatement):
