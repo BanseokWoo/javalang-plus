@@ -426,7 +426,6 @@ def unparse(node, indent=0):
         postfix_str = _get_postfix_str(node.postfix_operators)
         qualifier_str = _get_qualifier_str(node.qualifier)
         if node.type_arguments is not None and len(node.type_arguments) > 0:
-            # assert node.qualifier is not None and len(node.qualifier) > 0
             typep_str = "<%s>" % ", ".join(unparse(t) for t in node.type_arguments) # generic method handling
         else:
             typep_str = ""
