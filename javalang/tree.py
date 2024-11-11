@@ -201,7 +201,7 @@ class TernaryExpression(Expression):
     attrs = ("condition", "if_true", "if_false")
 
 class BinaryOperation(Expression):
-    attrs = ("operator", "operandl", "operandr")
+    attrs = ("operator", "operandl", "operandr", "prefix_operators")
 
 class Cast(Expression):
     attrs = ("type", "expression")
