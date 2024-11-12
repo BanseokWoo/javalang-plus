@@ -368,9 +368,12 @@ def unparse(node, indent=0):
         else:
             return base_str
     elif isinstance(node, tree.BinaryOperation):
-        if hasattr(node, 'prefix_operators') or hasattr(node, 'selectors'): # prefixes in binary operations aren't documented but exist
+        if hasattr(node, 'prefix_operators'): # prefixes in binary operations aren't documented but exist
             prefix_str = _get_prefix_str(node.prefix_operators)
-            selector_str = _get_selector_str(node.selectors)
+            if hasattr(node, 'selectors'):
+                selector_str = _get_selector_str(node.selectors)
+            else:
+                selector_str = ''
             return "%s(%s %s %s)%s" % (prefix_str, unparse(node.operandl), node.operator, unparse(node.operandr), selector_str)
         else:
             return "%s %s %s" % (unparse(node.operandl), node.operator, unparse(node.operandr))
