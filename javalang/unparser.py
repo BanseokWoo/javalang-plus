@@ -65,7 +65,7 @@ def _get_body_str(elements, indent):
         body_statements = unparse(elements, indent=indent+1)
         return " {\n" + body_statements + "\n" + indent_str + "}"
     elif isinstance(elements, list):
-        body_statements = "\n".join(unparse(e, indent=indent+1) for e in elements)
+        body_statements = "\n".join(unparse(e, indent=indent+1).rstrip() for e in elements)
         return " {\n" + body_statements + "\n" + indent_str + "}"
     else:
         raise ValueError(f"Invalid body type {type(elements)}")
