@@ -441,6 +441,10 @@ def unparse(node, indent=0):
         args = ", ".join(unparse(arg) for arg in node.arguments)
         selector_str = _get_selector_str(node.selectors)
         return prefix_str + "super." + node.member + "(" + args + ")" + selector_str
+    elif isinstance(node, tree.SuperMemberReference):
+        prefix_str = _get_prefix_str(node.prefix_operators)
+        selector_str = _get_selector_str(node.selectors)
+        return prefix_str + "super." + node.member + selector_str
     elif isinstance(node, tree.ArraySelector):
         return "[%s]" % unparse(node.index)
     elif isinstance(node, tree.ClassReference):
