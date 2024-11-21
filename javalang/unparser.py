@@ -342,7 +342,7 @@ def unparse(node, indent=0):
         if node.condition is not None:
             cond = unparse(node.condition)
         else:
-            cond = ""
+            cond = ";"
         if node.update is not None:
             update = ", ".join(unparse(u) for u in node.update)
         else:
