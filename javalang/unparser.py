@@ -3,8 +3,41 @@ import six
 from .ast import Node
 from . import util
 from . import tree
+from . import parse
 
 INDENT_SIZE = 4
+
+
+def _ast_equal(node1, node2) -> bool:
+    if node1 is None and node2 is None:
+        return True
+    
+    if (node1 is None) != (node2 is None):
+        return False
+    
+    if not isinstance(node1, Node) and not isinstance(node2, Node):
+        return node1 == node2
+    
+    if isinstance(node1, Node) != isinstance(node2, Node):
+        return False
+    
+    if type(node1) != type(node2):
+        return False
+    
+    for attr in node1.attrs:
+        value1 = getattr(node1, attr)
+        value2 = getattr(node2, attr)
+        
+        if isinstance(value1, list) and isinstance(value2, list):
+            if len(value1) != len(value2):
+                return False
+            for item1, item2 in zip(value1, value2):
+                if not _ast_equal(item1, item2):
+                    return False
+        elif isinstance(value1, Node) and isinstance(value2, Node):
+            if not _ast_equal(value1, value2):
+                return False
+    return True
 
 def _get_prefix_str(prefix_operators):
     if prefix_operators is None:
@@ -374,7 +407,42 @@ def unparse(node, indent=0):
                 selector_str = _get_selector_str(node.selectors)
             else:
                 selector_str = ''
-            return "%s%s %s %s%s" % (prefix_str, unparse(node.operandl), node.operator, unparse(node.operandr), selector_str)
+
+            l_unparsed = unparse(node.operandl)
+            r_unparsed = unparse(node.operandr)
+
+            l_unparsed_paren = f"({l_unparsed})"
+            r_unparsed_paren = f"({r_unparsed})"
+
+            is_l_binop = isinstance(node.operandl, tree.BinaryOperation)
+            is_r_binop = isinstance(node.operandr, tree.BinaryOperation)
+
+            if is_l_binop and is_r_binop:
+                return "%s(%s) %s (%s)%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
+            if is_l_binop:
+                paren_version = f"{l_unparsed_paren} {node.operator} {r_unparsed};"
+                no_paren_version = f"{l_unparsed} {node.operator} {r_unparsed};"
+
+                paren_version_parsed = parse.parse(paren_version)
+                no_paren_version_parsed = parse.parse(no_paren_version)
+
+                if (_ast_equal(paren_version_parsed, no_paren_version_parsed)):
+                    return "%s%s %s %s%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
+                else:
+                    return "%s(%s) %s %s%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
+            elif is_r_binop:
+                paren_version = f"{l_unparsed} {node.operator} {r_unparsed_paren};"
+                no_paren_version = f"{l_unparsed} {node.operator} {r_unparsed};"
+
+                paren_version_parsed = parse.parse(paren_version)
+                no_paren_version_parsed = parse.parse(no_paren_version)
+
+                if (_ast_equal(paren_version_parsed, no_paren_version_parsed)):
+                    return "%s%s %s %s%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
+                else:
+                    return "%s%s %s (%s)%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
+            else:
+                return "%s%s %s %s%s" % (prefix_str, l_unparsed, node.operator, r_unparsed, selector_str)
         else:
             return "%s %s %s" % (unparse(node.operandl), node.operator, unparse(node.operandr))
     elif isinstance(node, tree.Cast):
