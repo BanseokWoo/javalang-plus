@@ -338,7 +338,7 @@ def unparse(node, indent=0):
             else:
                 init = unparse(node.init)
         else:
-            init = ";"
+            init = " ;"
         if node.condition is not None:
             cond = unparse(node.condition)
         else:
