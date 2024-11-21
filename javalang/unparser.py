@@ -247,13 +247,13 @@ def unparse(node, indent=0):
     elif isinstance(node, tree.WhileStatement):
         label_str = _get_label_str(node.label, indent_str)
         preamble = label_str + indent_str + "while (%s) " % unparse(node.condition)
-        statement = unparse(node.body, indent=indent)
-        return "%s %s" % (preamble, statement)
+        statement = unparse(node.body, indent=indent).strip()
+        return "%s%s" % (preamble, statement)
     elif isinstance(node, tree.DoStatement):
         label_str = _get_label_str(node.label, indent_str)
         preamble = label_str + indent_str + "do "
         condition = unparse(node.condition)
-        statement = unparse(node.body, indent=indent)
+        statement = unparse(node.body, indent=indent).strip()
         return "%s%s while (%s);" % (preamble, statement, condition)
     elif isinstance(node, tree.ForStatement):
         label_str = _get_label_str(node.label, indent_str)
@@ -374,7 +374,7 @@ def unparse(node, indent=0):
                 selector_str = _get_selector_str(node.selectors)
             else:
                 selector_str = ''
-            return "%s(%s %s %s)%s" % (prefix_str, unparse(node.operandl), node.operator, unparse(node.operandr), selector_str)
+            return "%s%s %s %s%s" % (prefix_str, unparse(node.operandl), node.operator, unparse(node.operandr), selector_str)
         else:
             return "%s %s %s" % (unparse(node.operandl), node.operator, unparse(node.operandr))
     elif isinstance(node, tree.Cast):
@@ -418,7 +418,7 @@ def unparse(node, indent=0):
         prefix_str = _get_prefix_str(node.prefix_operators)
         postfix_str = _get_postfix_str(node.postfix_operators)
         selector_str = _get_selector_str(node.selectors)
-        return prefix_str + core_name + postfix_str + selector_str
+        return prefix_str + core_name + selector_str + postfix_str
     elif isinstance(node, tree.ExplicitConstructorInvocation):
         return "this(%s)" % (", ".join(unparse(e) for e in node.arguments))
     elif isinstance(node, tree.SuperConstructorInvocation):
